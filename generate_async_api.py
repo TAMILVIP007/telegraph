@@ -61,7 +61,7 @@ class SyncToAsyncTransformer(cst.CSTTransformer):
         path = []
 
         a = original_node.func
-        while isinstance(a, cst.Attribute) or isinstance(a, cst.Name):
+        while isinstance(a, (cst.Attribute, cst.Name)):
             if isinstance(a, cst.Attribute):
                 path.append(a.attr.value)
             else:
@@ -100,12 +100,10 @@ class SyncToAsyncTransformer(cst.CSTTransformer):
         self.fn_should_async = None
         self.stack.pop()
 
-        if not should_async:
-            return updated_node
-
-        # mark fn as async
-        return updated_node.with_changes(
-            asynchronous=cst.Asynchronous()
+        return (
+            updated_node.with_changes(asynchronous=cst.Asynchronous())
+            if should_async
+            else updated_node
         )
 
 
